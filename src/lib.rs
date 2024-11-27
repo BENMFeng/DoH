@@ -569,9 +569,6 @@ pub async fn notify_msg(notice_config: &NoticeConfig, receiver_vec: &Vec<Receive
         let mut all_receivers_vec = receiver_vec.clone();
         for receiver in &notice_config.fs_config.receiver {
             all_receivers_vec.push(receiver.clone());
-            // if !all_receivers_vec.contains(receiver) {
-            //     all_receivers_vec.push(receiver.clone());
-            // }
         }
 
         let mut seen_receive_ids = HashMap::new();
@@ -641,8 +638,6 @@ async fn batch_get_fs_id(account: &str, account_type: &str, tenant_access_token:
 
     let data_json = match try_connect_requests("POST", &url, headers, &payload, timeout, try_times).await {
         Ok(response) => {
-            // 确保响应状态是成功的
-            
             if response.status().is_success() {
                 let json_value = response.json::<serde_json::Value>().await.expect("Failed to deserialize");
                 let data_json: serde_json::Value = serde_json::from_value(json_value).expect("Failed to deserialize");
