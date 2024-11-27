@@ -1,0 +1,38 @@
+[package]
+name = "doh"
+
+version = "0.1.0"
+edition = "2021"
+license = "GNU GPLv3"
+repository = "https://github.com/ZimaBlue-AI/DoH"
+description = "Distributed jObs Hypervisor"
+rust-version = "1.82.0"
+authors = ["ZimaBlueAI <zimablueai@proton.me>"]
+
+[[bin]]
+name = "node_monitor"
+path = "src/node_monitor.rs"
+doc = false
+
+[[bin]]
+name = "job_monitor"
+path = "src/job_monitor.rs"
+doc = false
+
+[dependencies]
+sysinfo = "0.32.1"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0.133"
+procfs = "0.17.0"
+regex = "1.5.4"
+tokio = { version = "1", features = ["full", "rt-multi-thread"] }
+log = "0.4"
+env_logger = "0.11.5"
+uuid = {version = "^1.8.0", features = [
+    "v4",                # Lets you generate random UUIDs
+    "fast-rng",          # Use a faster (but still sufficiently random) RNG
+    "macro-diagnostics", # Enable better diagnostics for compile-time UUIDs
+]}
+uuid-macro-internal = { version = "1.0.0-alpha.1" }
+anyhow = "1.0"
+reqwest = { version="0.12.2", features = ["json", "multipart", "stream"] }
