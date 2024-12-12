@@ -30,22 +30,22 @@ pub async fn start_network_monitor(config_path: &str) {
             // Print Network information
             info!("Network Information:");
             let networks = Networks::new_with_refreshed_list();
-            for (interface_name, network) in &networks {
-                if network.received() > net_config.data_threshold || network.transmitted() > net_config.data_threshold {
+            for (interface_name, data) in &networks {
+                if data.received() > net_config.data_threshold || data.transmitted() > net_config.data_threshold {
                     warn!(
                         "Warning: {} received {}, transmitted {}",
                         interface_name,
-                        format_bytes(network.received()),
-                        format_bytes(network.transmitted())
+                        format_bytes(data.received()),
+                        format_bytes(data.transmitted())
                     );
-                    warn!("Ip Networks: {:?}", network.ip_networks());
+                    warn!("Ip Networks: {:?}", data.ip_networks());
 
                     msg_content.push_str(&format!("Warning: {} received {}, transmitted {}\n",
                         interface_name,
-                        format_bytes(network.received()),
-                        format_bytes(network.transmitted())
+                        format_bytes(data.received()),
+                        format_bytes(data.transmitted())
                     ));
-                    msg_content.push_str(&format!("Ip Networks: {:?}\n", network.ip_networks()));
+                    msg_content.push_str(&format!("Ip Networks: {:?}\n", data.ip_networks()));
                 }
             }
 
@@ -72,6 +72,7 @@ pub async fn start_network_monitor(config_path: &str) {
                 }
             }
 
+            //TODO: write a function to get the socket info
             info!("--------------------------------TCP--------------------------------");
             let mut msg_content_title = format!("--------------------------------TCP--------------------------------\n");
             // get the tcp table

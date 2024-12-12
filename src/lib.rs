@@ -72,13 +72,21 @@ pub struct NodeMonitorConfig {
 pub struct JobMonitorConfig {
     pub check_interval: u64,
     pub script_path: String,
-    pub receiver: Vec<ReceiverConfig>
+    pub receiver: Vec<ReceiverConfig>,
+    pub init_condition: InitConditionConfig
 }
 
 #[derive(Deserialize, Clone, PartialEq)]
 pub struct ReceiverConfig {
     pub receive_id: String,
     pub receive_id_type: String,
+}
+
+#[derive(Deserialize, Clone)]
+pub struct InitConditionConfig {
+    pub cpu_idle_rate_threshold: f32,
+    pub available_memory_threshold: u64,
+    pub path_space: Vec<PathSpace>
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]

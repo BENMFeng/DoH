@@ -158,6 +158,16 @@ cargo build --release
     "job_monitor": {
         "check_interval": 10,
         "script_path": "/mnt/c/DoH/test.sh", # run job shell script
+        "init_condition": {
+            "cpu_idle_rate_threshold": 0.5,
+            "available_memory_threshold": 2147483648,
+            "path_space": [
+                {
+                    "path":"/mnt/c/DoH/",
+                    "space_threshold":[0, 4294967296]
+                }
+            ]
+        },
         "receiver": [{
             "receive_id": "ou_***",
             "receive_id_type": "open_id" 

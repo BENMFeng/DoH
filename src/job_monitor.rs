@@ -25,6 +25,75 @@ async fn main() {
 
     let current_process_pid = sysinfo::get_current_pid().expect("Failed to get current PID");
 
+    let init_condition = &config.job_monitor.init_condition;
+
+    let mut init_job_pass_throught = false;
+
+    // 检查资源起始条件
+    while !init_job_pass_throught {
+        let mut sys = System::new_all();
+        sys.refresh_all();
+        // 检查 CPU 空闲
+        let mut total_cpu_usage = 0.0;
+        for cpu in sys.cpus() {
+            total_cpu_usage += cpu.cpu_usage();
+        }
+        let total_cpu_usage_rate =  total_cpu_usage / sys.cpus().len() as f32;
+        let cpu_idle_rate = 100.0 - total_cpu_usage_rate;
+        if cpu_idle_rate < init_condition.cpu_idle_rate_threshold {
+            warn!("CPU idle is below the threshold: {}%", cpu_idle_rate);
+            init_job_pass_throught = false;
+        } else {
+            init_job_pass_throught = true;
+        }
+
+        if !init_job_pass_throught {
+            sleep(Duration::from_secs(1)).await;
+            continue;
+        }
+
+        // 检查 RAM 可用内存
+        let available_memory = sys.free_memory();
+        if available_memory < init_condition.available_memory_threshold {
+            warn!("Available memory is below the threshold: {}", format_bytes(available_memory));
+            init_job_pass_throught = false;
+        } else {
+            init_job_pass_throught = true;
+        }
+        if !init_job_pass_throught {
+            sleep(Duration::from_secs(1)).await;
+            continue;
+        }
+
+        // 检查指定路径所在磁盘空间
+        for path_space in &init_condition.path_space {
+            let path = &path_space.path;
+            let space_threshold = path_space.space_threshold;
+            if let Ok(metadata) = fs::metadata(path) {
+                if metadata.is_dir() {
+                    let total_size = get_dir_size(path);
+                    if total_size > space_threshold.1 || total_size < space_threshold.0 {
+                        warn!("Directory size exceeds threshold in path {:?}: {}", path, format_bytes(total_size));
+                        init_job_pass_throught = false;
+                    } else { 
+                        init_job_pass_throught = true;
+                    }
+                } else {
+                    if metadata.len() > space_threshold.1 || metadata.len() < space_threshold.0 {
+                        warn!("File size exceeds threshold in path {:?}: {}", path, format_bytes(metadata.len()));
+                        init_job_pass_throught = false;
+                    } else {
+                        init_job_pass_throught = true;
+                    }
+                }
+            }
+        }
+        if !init_job_pass_throught {
+            sleep(Duration::from_secs(1)).await;
+            continue;
+        }
+    }
+
     // 启动 shell 脚本
     let start_time = SystemTime::now();
     let script_path = &config.job_monitor.script_path;
@@ -32,6 +101,9 @@ async fn main() {
         .arg(script_path)
         .spawn()
         .expect("Failed to start script");
+        // 检查资源起始条件
+        let mut sys = System::new_all();
+        sys.refresh_all();
 
     let pid = child.id();
     info!("Started script (script: {}) with PID: {}", script_path, pid);
