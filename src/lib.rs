@@ -72,13 +72,21 @@ pub struct NodeMonitorConfig {
 pub struct JobMonitorConfig {
     pub check_interval: u64,
     pub script_path: String,
-    pub receiver: Vec<ReceiverConfig>
+    pub receiver: Vec<ReceiverConfig>,
+    pub init_condition: InitConditionConfig
 }
 
 #[derive(Deserialize, Clone, PartialEq)]
 pub struct ReceiverConfig {
     pub receive_id: String,
     pub receive_id_type: String,
+}
+
+#[derive(Deserialize, Clone)]
+pub struct InitConditionConfig {
+    pub cpu_idle_rate_threshold: f32,
+    pub available_memory_threshold: u64,
+    pub path_space: Vec<PathSpace>
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -569,9 +577,6 @@ pub async fn notify_msg(notice_config: &NoticeConfig, receiver_vec: &Vec<Receive
         let mut all_receivers_vec = receiver_vec.clone();
         for receiver in &notice_config.fs_config.receiver {
             all_receivers_vec.push(receiver.clone());
-            // if !all_receivers_vec.contains(receiver) {
-            //     all_receivers_vec.push(receiver.clone());
-            // }
         }
 
         let mut seen_receive_ids = HashMap::new();
@@ -641,8 +646,6 @@ async fn batch_get_fs_id(account: &str, account_type: &str, tenant_access_token:
 
     let data_json = match try_connect_requests("POST", &url, headers, &payload, timeout, try_times).await {
         Ok(response) => {
-            // 确保响应状态是成功的
-            
             if response.status().is_success() {
                 let json_value = response.json::<serde_json::Value>().await.expect("Failed to deserialize");
                 let data_json: serde_json::Value = serde_json::from_value(json_value).expect("Failed to deserialize");
