@@ -3,6 +3,7 @@
 ## 0x01 Install Requirements
 
 Install Rust
+
 ```bash
 # Install rust
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
@@ -11,6 +12,7 @@ rustup update
 ```
 
 Install openssl and libssl-dev
+
 ```bash
 sudo apt-get update
 sudo apt install openssl 
@@ -19,6 +21,7 @@ sudo apt install pkg-config
 ```
 
 ## 0x02 Compile
+
 ```bash
 git clone https://github.com/ZimaBlue-AI/DoH
 cd DoH
@@ -71,7 +74,6 @@ cargo build --release
 }
 ```
 
-
 ### 3.2 Node hypervisor configuration
 
 ```json
@@ -103,6 +105,12 @@ cargo build --release
                 "receive_id_type": "mobile" 
             }]
     },
+    "network_monitor": {
+        "check_interval": 120,
+        "data_threshold": 26214400, # tx/rx bytes over 25MB
+        "exclude_ipv4_address": ["*.*.*.*","0.0.0.0","127.0.0.1"],
+        "receiver": []
+    },
     "node_monitor": {
         "run_time": 10,
         "check_interval": 60,
@@ -113,6 +121,16 @@ cargo build --release
             "receive_id": "186***",
             "receive_id_type": "mobile" 
         }]
+    },
+    "job_monitor": {
+        "check_interval": 100000000000,
+        "script_path": "",
+        "init_condition": {
+                "cpu_idle_rate_threshold": 1.0,
+                "available_memory_threshold": 1000000000,
+                "path_space": []
+        },
+        "receiver": []
     },
     "notice_config": {
         "fs_config": {
@@ -187,17 +205,21 @@ cargo build --release
 ```
 
 ## 0x04 Run
+
 ### 4.1 Resource monitoring
+
 ```bash
 RUST_LOG=INFO ./target/release/doh
 ```
 
 ### 4.2 Node monitoring
+
 ```bash
 RUST_LOG=INFO ./target/release/node_monitor
 ```
- 
+
 ### 4.3 Job monitoring
+
 ```bash
 RUST_LOG=INFO ./target/release/job_monitor
 ```
@@ -215,4 +237,5 @@ RUST_LOG=INFO ./target/release/job_monitor
 Licensed under [GNU General Public License v3.0 (GPL-3.0)](https://www.gnu.org/licenses/gpl-3.0.html).
 
 ---
-Copyright (c) 2024 ZimaBlueAI Tech. Co. Ltd.
+
+Copyright (c) 2024-2025 ZimaBlueAI Tech. Co. Ltd.

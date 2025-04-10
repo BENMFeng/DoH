@@ -22,6 +22,7 @@ pub async fn start_resource_monitor(config_path: &str, exclude_pid: Pid) {
             sys.refresh_all();
 
             let mut msg_content = String::new();
+            let mut bool = false;
             // Print CPU information
             info!("CPU Information:");
             for (pid, process) in sys.processes() {
@@ -93,42 +94,80 @@ pub async fn start_resource_monitor(config_path: &str, exclude_pid: Pid) {
                                 format_bytes(write_bytes)
                             ));
                         }
-                        // Print RAM information
-                        info!("Sytem Information:");
-                        info!("NB CPUs: {}", sys.cpus().len());
-                        let mut total_cpu_usage = 0.0;
-                        for cpu in sys.cpus() {
-                            total_cpu_usage += cpu.cpu_usage();
-                        }
-                        info!("CPU usage: {}% ", total_cpu_usage);
-                        info!("Total memory: {}", format_bytes(sys.total_memory()));
-                        info!("Used memory: {}", format_bytes(sys.used_memory()));
-                        info!("Free memory: {}", format_bytes(sys.free_memory()));
-                        if sys.total_memory()-sys.used_memory()-sys.free_memory() > 0 {
-                            info!("buff/cache: {}", format_bytes(sys.total_memory()-sys.used_memory()-sys.free_memory()));
-                        }
-                        info!("Total swap: {}", format_bytes(sys.total_swap()));
-                        info!("Used swap: {}", format_bytes(sys.used_swap()));
-                        info!("Free swap: {}", format_bytes(sys.free_swap()));
 
-                        msg_content.push_str(&format!("NB CPUs: {}\n", sys.cpus().len()));
-                        msg_content.push_str(&format!("CPU usage: {}%\n", total_cpu_usage));
-                        msg_content.push_str(&format!("Total memory: {}\n", format_bytes(sys.total_memory())));
-                        msg_content.push_str(&format!("Used memory: {}\n", format_bytes(sys.used_memory())));
-                        msg_content.push_str(&format!("Free memory: {}\n", format_bytes(sys.free_memory())));
-                        if sys.total_memory()-sys.used_memory()-sys.free_memory() > 0 {
-                            msg_content.push_str(&format!("buff/cache: {}\n", format_bytes(sys.total_memory()-sys.used_memory()-sys.free_memory())));
-                        }
-                        msg_content.push_str(&format!("Total swap: {}\n", format_bytes(sys.total_swap())));
-                        msg_content.push_str(&format!("Used swap: {}\n", format_bytes(sys.used_swap())));
-                        msg_content.push_str(&format!("Free swap: {}\n", format_bytes(sys.free_swap())));
+                        bool = true;
+                        // // Print RAM information
+                        // info!("Sytem Information:");
+                        // info!("NB CPUs: {}", sys.cpus().len());
+                        // let mut total_cpu_usage = 0.0;
+                        // for cpu in sys.cpus() {
+                        //     total_cpu_usage += cpu.cpu_usage();
+                        // }
+                        // info!("CPU usage: {}% ", total_cpu_usage);
+                        // info!("Total memory: {}", format_bytes(sys.total_memory()));
+                        // info!("Used memory: {}", format_bytes(sys.used_memory()));
+                        // info!("Free memory: {}", format_bytes(sys.free_memory()));
+                        // if sys.total_memory()-sys.used_memory()-sys.free_memory() > 0 {
+                        //     info!("buff/cache: {}", format_bytes(sys.total_memory()-sys.used_memory()-sys.free_memory()));
+                        // }
+                        // info!("Total swap: {}", format_bytes(sys.total_swap()));
+                        // info!("Used swap: {}", format_bytes(sys.used_swap()));
+                        // info!("Free swap: {}", format_bytes(sys.free_swap()));
 
-                        let _ = notify_msg(&config.notice_config, &res_config.receiver, &msg_content).await;
+                        // msg_content.push_str(&format!("NB CPUs: {}\n", sys.cpus().len()));
+                        // msg_content.push_str(&format!("CPU usage: {}%\n", total_cpu_usage));
+                        // msg_content.push_str(&format!("Total memory: {}\n", format_bytes(sys.total_memory())));
+                        // msg_content.push_str(&format!("Used memory: {}\n", format_bytes(sys.used_memory())));
+                        // msg_content.push_str(&format!("Free memory: {}\n", format_bytes(sys.free_memory())));
+                        // if sys.total_memory()-sys.used_memory()-sys.free_memory() > 0 {
+                        //     msg_content.push_str(&format!("buff/cache: {}\n", format_bytes(sys.total_memory()-sys.used_memory()-sys.free_memory())));
+                        // }
+                        // msg_content.push_str(&format!("Total swap: {}\n", format_bytes(sys.total_swap())));
+                        // msg_content.push_str(&format!("Used swap: {}\n", format_bytes(sys.used_swap())));
+                        // msg_content.push_str(&format!("Free swap: {}\n", format_bytes(sys.free_swap())));
 
-                        thread::sleep(Duration::from_secs(res_config.check_interval));
+                        // let _ = notify_msg(&config.notice_config, &res_config.receiver, &msg_content).await;
+
+                        // thread::sleep(Duration::from_secs(res_config.check_interval));
                     }
                 }
             }
+
+            if bool {
+                // Print RAM information
+                info!("Sytem Information:");
+                info!("NB CPUs: {}", sys.cpus().len());
+                let mut total_cpu_usage = 0.0;
+                for cpu in sys.cpus() {
+                    total_cpu_usage += cpu.cpu_usage();
+                }
+                info!("CPU usage: {}% ", total_cpu_usage);
+                info!("Total memory: {}", format_bytes(sys.total_memory()));
+                info!("Used memory: {}", format_bytes(sys.used_memory()));
+                info!("Free memory: {}", format_bytes(sys.free_memory()));
+                if sys.total_memory()-sys.used_memory()-sys.free_memory() > 0 {
+                    info!("buff/cache: {}", format_bytes(sys.total_memory()-sys.used_memory()-sys.free_memory()));
+                }
+                info!("Total swap: {}", format_bytes(sys.total_swap()));
+                info!("Used swap: {}", format_bytes(sys.used_swap()));
+                info!("Free swap: {}", format_bytes(sys.free_swap()));
+
+                msg_content.push_str(&format!("NB CPUs: {}\n", sys.cpus().len()));
+                msg_content.push_str(&format!("CPU usage: {}%\n", total_cpu_usage));
+                msg_content.push_str(&format!("Total memory: {}\n", format_bytes(sys.total_memory())));
+                msg_content.push_str(&format!("Used memory: {}\n", format_bytes(sys.used_memory())));
+                msg_content.push_str(&format!("Free memory: {}\n", format_bytes(sys.free_memory())));
+                if sys.total_memory()-sys.used_memory()-sys.free_memory() > 0 {
+                    msg_content.push_str(&format!("buff/cache: {}\n", format_bytes(sys.total_memory()-sys.used_memory()-sys.free_memory())));
+                }
+                msg_content.push_str(&format!("Total swap: {}\n", format_bytes(sys.total_swap())));
+                msg_content.push_str(&format!("Used swap: {}\n", format_bytes(sys.used_swap())));
+                msg_content.push_str(&format!("Free swap: {}\n", format_bytes(sys.free_swap())));
+
+                let _ = notify_msg(&config.notice_config, &res_config.receiver, &msg_content).await;
+            }
+
+            thread::sleep(Duration::from_secs(res_config.check_interval));
 
             
         }
