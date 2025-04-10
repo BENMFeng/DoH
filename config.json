@@ -9,10 +9,12 @@
                 "space_threshold":[10, 4294967296]
             }
         ],
-        "receiver": [{
-                "receive_id": "ou_***",  
-                "receive_id_type": "open_id" 
-            }]
+        "measure_performance": true,
+        "min_write_throughput": 50.0, 
+        "min_read_throughput": 75.0,
+        "min_write_iops": 100.0,
+        "min_read_iops": 150.0,
+        "receiver": []
     },
     "resource_monitor": {
         "check_interval": 10,
@@ -21,10 +23,7 @@
         "virtual_memory_threshold": 10737418240,
         "cpu_threshold": 190.0,
         "exclude_self_process": true, 
-        "receiver": [{
-                "receive_id": "186***", 
-                "receive_id_type": "mobile" 
-            }]
+        "receiver": []
     },
     "node_monitor": {
         "run_time": 10,
@@ -32,10 +31,7 @@
         "node_id": "management_node",
         "exclude_users": ["root"],    
         "include_users": ["ai"],       
-        "receiver": [{
-            "receive_id": "186***",
-            "receive_id_type": "mobile" 
-        }]
+        "receiver": []
     },
     "job_monitor": {
         "check_interval": 10,
@@ -51,19 +47,6 @@
             ]
 
         },
-        "receiver": [{
-                "receive_id": "ou_***",
-                "receive_id_type": "open_id" 
-            }]
-    },
-    "notice_config": {
-        "fs_config": {
-            "app_id": "cli_***", 
-            "app_secret": "***", 
-            "receiver": [{
-                "receive_id": "oc_***",
-                "receive_id_type": "chat_id" 
-            }]
-        }
+        "receiver": []
     }
 }

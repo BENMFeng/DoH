@@ -18,6 +18,10 @@ sudo apt-get update
 sudo apt install openssl 
 sudo apt install libssl-dev
 sudo apt install pkg-config
+
+# check SMART and badblocks
+sudo apt-get install smartmontools
+sudo apt-get install e2fsprog
 ```
 
 ## 0x02 Compile
@@ -44,6 +48,12 @@ cargo build --release
                 "space_threshold":[10, 26214400] # lower than 10 bytes, or larger than 25MB will give out warning
             }
         ],
+        "check_bad_sectors": true,
+        "measure_performance": true,
+        "min_write_throughput": 50.0,  // MB/s, warn if write throughput is below 50 MB/s
+        "min_read_throughput": 75.0,   // MB/s, warn if read throughput is below 75 MB/s
+        "min_write_iops": 100.0,       // Operations per second
+        "min_read_iops": 150.0,        // Operations per second
         "receiver": [{
             "receive_id": "ou_***",  
             "receive_id_type": "open_id" 
@@ -60,6 +70,12 @@ cargo build --release
             "receive_id": "186***", # phone
             "receive_id_type": "mobile" 
         }]
+    },
+    "network_monitor": {
+        "check_interval": 120,
+        "data_threshold": 26214400, # tx/rx bytes over 25MB
+        "exclude_ipv4_address": ["*.*.*.*","0.0.0.0","127.0.0.1"],
+        "receiver": []
     },
     "notice_config": {
         "fs_config": {
@@ -88,6 +104,12 @@ cargo build --release
                 "space_threshold":[10, 26214400] # lower than 10bytes, or larger than 25MB will give out warning
             }
         ],
+        "check_bad_sectors": true,
+        "measure_performance": true,
+        "min_write_throughput": 50.0,  // MB/s, warn if write throughput is below 50 MB/s
+        "min_read_throughput": 75.0,   // MB/s, warn if read throughput is below 75 MB/s
+        "min_write_iops": 100.0,       // Operations per second
+        "min_read_iops": 150.0,        // Operations per second
         "receiver": [{
                 "receive_id": "ou_***",  
                 "receive_id_type": "open_id" 
@@ -156,6 +178,8 @@ cargo build --release
                 "space_threshold":[10, 26214400] # lower than 10 bytes, or larger than 25 MB will give out warning
             }
         ],
+        "check_bad_sectors": false,
+        "measure_performance": false,
         "receiver": [{
             "receive_id": "ou_***",  
             "receive_id_type": "open_id"  # support open_id, chat_id, mobile, email

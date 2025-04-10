@@ -15,12 +15,17 @@ use std::collections::HashMap;
 
 #[derive(Deserialize,Clone)]
 pub struct Config {
-    pub resource_monitor: ResourceMonitorConfig,
-    pub disk_monitor: DiskMonitorConfig,
-    pub network_monitor: NetworkMonitorConfig,
-    pub node_monitor: NodeMonitorConfig,
-    pub job_monitor: JobMonitorConfig,
-    pub notice_config: NoticeConfig
+    #[serde(default)]
+    pub resource_monitor: Option<ResourceMonitorConfig>,
+    #[serde(default)]
+    pub disk_monitor: Option<DiskMonitorConfig>,
+    #[serde(default)]
+    pub network_monitor: Option<NetworkMonitorConfig>,
+    #[serde(default)]
+    pub node_monitor: Option<NodeMonitorConfig>,
+    #[serde(default)]
+    pub job_monitor: Option<JobMonitorConfig>,
+    pub notice_config: Option<NoticeConfig>
 }
 
 #[derive(Deserialize,Clone)]
@@ -40,7 +45,13 @@ pub struct DiskMonitorConfig {
     pub check_interval: u64,
     pub mount_points: Vec<String>,
     pub path_space: Vec<PathSpace>,
-    pub receiver: Vec<ReceiverConfig>
+    pub receiver: Vec<ReceiverConfig>,
+    pub check_bad_sectors: Option<bool>,
+    pub measure_performance: Option<bool>,
+    pub min_write_throughput: Option<f64>, // MB/s
+    pub min_read_throughput: Option<f64>,  // MB/s
+    pub min_write_iops: Option<f64>,       // Operations per second
+    pub min_read_iops: Option<f64>,        // Operations per second
 }
 #[derive(Deserialize,Clone)]
 pub struct NetworkMonitorConfig {
@@ -536,7 +547,7 @@ impl TokenActorTrait for TokenActor {
         let now = std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_secs();
         let mut token_expire = self.stored_token_expire.lock().await;
 
-        if now > *token_expire {
+        if now > *token_expire{
             let response = async_get_tenant_access_token(&self.app_config).await.expect("Failed to get tenant access token");
             let mut token = self.stored_token.lock().await;
             *token_expire = now + response.expire;
@@ -546,7 +557,12 @@ impl TokenActorTrait for TokenActor {
     }
 }
 
-pub async fn notify_msg(notice_config: &NoticeConfig, receiver_vec: &Vec<ReceiverConfig>, msg_content: &str) -> String {
+pub async fn notify_msg(notice_config: &Option<NoticeConfig>, receiver_vec: &Vec<ReceiverConfig>, msg_content: &str) -> String {
+    // If notice_config is None, return empty string (no notification)
+    let Some(notice_config) = notice_config else {
+        return "".to_string();
+    };
+
     if !notice_config.fs_config.app_id.is_empty() {
         let fs_config = &notice_config.fs_config;
         let tenant_access_token = match apply_token(fs_config.app_id.clone(), fs_config.app_secret.clone()).await {
